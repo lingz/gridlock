@@ -57,6 +57,12 @@ function gridlock_stylesheet_directory_uri( $args ) {
 }
 add_filter( 'stylesheet_directory_uri', 'gridlock_stylesheet_directory_uri', 10, 2 );
 
+function small_author($args) {
+  $pattern = "/>([^<]*)</";
+  $replacement = "><em class='text-muted'>$1</em><";
+  echo preg_replace($pattern, $replacement, $args);
+}
+add_filter( 'the_author_posts_link', 'small_author', 10, 2 );
 // register wp_nav_menu
 add_action( 'init', 'register_my_menus' );
 function register_my_menus() {

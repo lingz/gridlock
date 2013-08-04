@@ -44,6 +44,13 @@ img {
     height: 180px;
   }
 }
+#header {
+  padding: 0px 15px;
+  .navbar-form {
+    width: 80%;
+    float: left;
+  }
+}
 
 @media screen and (min-width: 768px) {
   .gridlock-row {
@@ -74,10 +81,10 @@ img {
           position: absolute;
           width: 100%;
           padding-left: 10px;
-          a {
+          h4 {
             color: white;
           }
-          a:hover {
+          h4:hover {
             color: white;
           }
         }
@@ -89,5 +96,9 @@ img {
       border-color: #bbbbbb;
       border-right-width: 1px;
     }
+  }
+  .navbar-form {
+    width: 30%;
+    float: right;
   }
 }

@@ -37,6 +37,12 @@ img {
   .article-container .article-description {
     height: 180px; }
 
+#header {
+  padding: 0px 15px; }
+  #header .navbar-form {
+    width: 80%;
+    float: left; }
+
 @media screen and (min-width: 768px) {
   .gridlock-row {
     padding: 15px 0px;
@@ -64,12 +70,16 @@ img {
         position: absolute;
         width: 100%;
         padding-left: 10px; }
-        .article-container .article-image .image-overlay .image-overlay-text a {
+        .article-container .article-image .image-overlay .image-overlay-text h4 {
           color: white; }
-        .article-container .article-image .image-overlay .image-overlay-text a:hover {
+        .article-container .article-image .image-overlay .image-overlay-text h4:hover {
           color: white; }
     .article-container.article-small:first-child, .article-container.article-medium:first-child {
       border: solid;
       border-width: 0px;
       border-color: #bbbbbb;
-      border-right-width: 1px; } }
+      border-right-width: 1px; }
+
+  .navbar-form {
+    width: 30%;
+    float: right; } }

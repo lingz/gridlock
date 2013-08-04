@@ -24,15 +24,24 @@
 <body <?php body_class(); ?>>
 <div id="main" class="container">
   <div id="header" class="page-header">
-    <h1><a href=<?php esc_url( home_url( '/' ) ); ?> title="<?php echo esc_attr ( get_bloginfo( 'name', 'display' ) ); ?>" rel="home">
+    <h1><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr ( get_bloginfo( 'name', 'display' ) ); ?>" rel="home">
       <?php bloginfo( 'name' ); ?>
     </a>
       <small><?php bloginfo ( 'description' ); ?></small>
     </h1>
   </div>
   <div class="navbar">
-    <ul class="nav navbar-nav">
-      <?php wp_nav_menu_no_ul(); ?>
-    </ul>
+    <!-- .navbar-toggle is used as the toggle for collapsed navbar content -->
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <div class="nav-collapse collapse navbar-responsive-collapse">
+      <ul class="nav navbar-nav">
+        <?php wp_nav_menu_no_ul(); ?>
+      </ul>
+    </div>
+    <?php get_search_form(); ?>
   </div>
   <div id="body">
