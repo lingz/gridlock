@@ -44,4 +44,4 @@
     </div>
     <?php get_search_form(); ?>
   </div>
-  <div id="body">
+  <div id="body" class="container">

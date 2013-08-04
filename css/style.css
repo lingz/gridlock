@@ -37,11 +37,30 @@ img {
   .article-container .article-description {
     height: 180px; }
 
+.row .row {
+  margin: 0px 0px; }
+
+#commentform label {
+  margin-right: 30px; }
+#commentform #submit {
+  margin-left: 95px;
+  width: 381px; }
+
 #header {
   padding: 0px 15px; }
   #header .navbar-form {
     width: 80%;
     float: left; }
+
+#sidebar {
+  display: none; }
+
+.divider {
+  padding: 20px 0px;
+  border: solid;
+  border-color: #bbbbbb;
+  border-width: 0px;
+  border-bottom-width: 1px; }
 
 @media screen and (min-width: 768px) {
   .gridlock-row {
@@ -82,4 +101,7 @@ img {
 
   .navbar-form {
     width: 30%;
-    float: right; } }
+    float: right; }
+
+  #sidebar {
+    display: block; } }
