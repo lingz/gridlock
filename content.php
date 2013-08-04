@@ -9,35 +9,49 @@
 
 <div id="id-<?php the_ID(); ?>" <?php post_class(); ?> >
   <div class="row">
-    <?php $span =  explode(".", get_post_meta( get_the_ID(), "gridlock", true))[1][1]; ?>
-    <?php  if ($span == 1) { ?>
-      <div class="article-image col-12">
-        <?php the_post_thumbnail(); ?>
-        This is the first
-      </div>
-    <?php } else if ($span == 2) { ?>
-      <div class="article-image col-6">
-        <?php the_post_thumbnail(); ?>
-        The second
-      </div>
-      <div class="col-6">
-      <a href=<?php the_permalink(); ?> title="<?php echo esc_attr( sprintf( __( 'Permalink to %s', 'gridlock' ),  the_title_attribute( 'echo=0' ) ) ); ?>" rel="bookmark"<?php the_title(); ?> >
-        <h4> <?php the_title(); ?> </h4>
-      </a>
-      <p> <?php the_excerpt(); ?></p>
-      </div>
-    <?php } else if ($span == 3) { ?>
-      <div class="article-image col-4">
-        <?php the_post_thumbnail(); ?>
-        The third
-      </div>
-      <div class="col-8">
-      <a href=<?php the_permalink(); ?> title="<?php echo esc_attr( sprintf( __( 'Permalink to %s', 'gridlock' ),  the_title_attribute( 'echo=0' ) ) ); ?>" rel="bookmark"<?php the_title(); ?> >
-        <h4> <?php the_title(); ?> </h4>
-      </a>
-      <p> <?php the_excerpt(); ?></p>
-      </div>
+    <?php 
+      $image_url = false;
+      if (has_post_thumbnail()) {
+        $image_url =  wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), array(300, 300), false, '')[0]; 
+      } else {
+        $image_url = catch_image();
+      }
+      ?>
+    <? if ($image_url) { ?>
+      <?php $span =  explode(".", get_post_meta( get_the_ID(), "gridlock", true))[1][1]; ?>
+      <?php if ($span == 1) { ?>
+        <div class="article-image col-6 col-sm-12" >
+          <div class="image" style="background-image: url(<?php echo $image_url ?>)">
+            <div class="image-overlay">
+              <div class="image-overlay-text">
+                <a href=<?php the_permalink(); ?> title="<?php echo esc_attr( sprintf( __( 'Permalink to %s', 'gridlock' ),  the_title_attribute( 'echo=0' ) ) ); ?>" rel="bookmark"<?php the_title(); ?> >
+                  <h4 class="article-title"> <?php the_title(); ?> </h4>
+                </a>
+              </div>
+            </div>    
+          </div>
+        </div>
+        <div class="article-description col-6 col-sm-12 hidden-large">
+      <?php } else if ($span == 2) { ?>
+        <div class="article-image col-6">
+          <div class="image" style="background-image: url(<?php echo $image_url ?>)"></div>
+        </div>
+        <div class="article-description col-6">
+      <?php } else if ($span == 3) { ?>
+        <div class="article-image col-6 col-sm-4">
+          <div class="image" style="background-image: url(<?php echo $image_url ?>)"></div>
+        </div>
+        <div class="article-description col-6 col-sm-8">
+      <?php } ?>
+    <?php } else { ?>
+      <div class="article-description col-12 col-sm-12">
     <?php } ?>
+        <a href=<?php the_permalink(); ?> title="<?php echo esc_attr( sprintf( __( 'Permalink to %s', 'gridlock' ),  the_title_attribute( 'echo=0' ) ) ); ?>" rel="bookmark"<?php the_title(); ?> >
+          <h4 class"article-title"> <?php the_title(); ?> </h4>
+        </a>
+        <em class="text-muted"> <?php echo the_author(); ?> </em>
+        <p> <?php the_excerpt(); ?></p>
+      </div>
 
   </div>
 </div>

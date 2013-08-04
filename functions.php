@@ -50,8 +50,52 @@ function twentytwelve_setup() {
   set_post_thumbnail_size( 400, 9999 ); // Unlimited height, soft crop
 }
 add_action( 'after_setup_theme', 'gridlock_setup' );
+add_theme_support( 'post-thumbnails' ); 
 
 function gridlock_stylesheet_directory_uri( $args ) {
 	return $args."/css";
 }
 add_filter( 'stylesheet_directory_uri', 'gridlock_stylesheet_directory_uri', 10, 2 );
+
+// register wp_nav_menu
+add_action( 'init', 'register_my_menus' );
+function register_my_menus() {
+  register_nav_menus( array(
+  'primary-menu' => __( 'Primary Menu', 'mytheme' )
+  )
+  );
+}
+
+function wp_nav_menu_no_ul()
+{
+    $options = array(
+        'echo' => false,
+        'container' => false,
+        'theme_location' => 'primary',
+        'fallback_cb'=> 'default_page_menu'
+    );
+
+    $menu = wp_nav_menu($options);
+    echo preg_replace(array(
+        '#^<ul[^>]*>#',
+        '#</ul>$#'
+    ), '', $menu);
+
+}
+
+function default_page_menu() {
+   wp_list_pages('title_li=');
+} 
+function catch_image() {
+  global $post, $posts;
+  $first_img = '';
+  ob_start();
+  ob_end_clean();
+  $output = preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $post->post_content, $matches);
+  $first_img = $matches[1][0];
+
+  if(empty($first_img)) {
+    $first_img = false;
+  }
+  return $first_img;
+}

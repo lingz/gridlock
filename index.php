@@ -20,22 +20,22 @@ get_header(); ?>
             $span = $gridlock[1][1];
             if ($old_row != $row) {
               // start a new row if the rows don't match
-              echo "<div class='row'>";
+              echo "<div class='row gridlock-row'>";
               $old_row = $row;
             }
           ?>
-          <div class="post-container col-12 
+          <div class="article-container col-12 
           <?php
             // opening the span tag
             switch ($span) {
             case "1":
-              echo "col-sm-4 col-lg-4 small-article";
+              echo "col-sm-4 article-small";
               break;
             case "2":
-              echo "col-sm-8 col-lg-8 medium-article";
+              echo "col-sm-8 article-medium";
               break;
             case "3":
-              echo "col-sm12 col-lg-12 large-article";
+              echo "col-sm12 article-large";
               break;
             }
           ?>
