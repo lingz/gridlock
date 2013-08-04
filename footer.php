@@ -10,7 +10,8 @@
  */
 ?>
 
-</div><!-- #main .wrapper -->
+</div><!-- closing body div -->
+</div><!-- closing function div -->
 <?php wp_footer(); ?>
 </body>
 </html>

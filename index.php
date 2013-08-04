@@ -29,18 +29,18 @@ get_header(); ?>
             // opening the span tag
             switch ($span) {
             case "1":
-              echo "col-sm-4 col-lg-4";
+              echo "col-sm-4 col-lg-4 small-article";
               break;
             case "2":
-              echo "col-sm-8 col-lg-8";
+              echo "col-sm-8 col-lg-8 medium-article";
               break;
             case "3":
-              echo "col-sm12 col-lg-12";
+              echo "col-sm12 col-lg-12 large-article";
               break;
             }
           ?>
           ">
-          <?php echo get_the_title();
+          <?php get_template_part( 'content', get_post_format() ); 
           // closing the column tag
           ?>
           </div>
