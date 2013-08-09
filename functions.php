@@ -128,7 +128,7 @@ if ( is_admin() ) {
   // adds them if checked
   function remove_all_query() {
     if (!get_option("gridlock_all")) {
-      $remove = new WP_Query(get_option("gridlock_query"));
+      $remove = new WP_Query(array( "posts_per_page" => 500));
       while ( $remove->have_posts() ) : $remove->the_post(); 
         if (get_post_meta(get_the_ID(), "gridlock", true) < 1) {
           delete_post_meta(get_the_ID(), "gridlock");
@@ -174,13 +174,13 @@ if ( is_admin() ) {
   function gridster() { 
     $query = gridster_query(); 
     $max_row = 0; ?>
-    <div class="gridster">
+    <div data-root='<?php echo site_url(); ?>' class="gridster">
       <div id="grid-buttons" class="row">
         <div class="col-6">
-          <button type="button" class="btn btn-primary btn-block">Save Grid</button>
+          <button id="btn-save" type="button" class="btn btn-primary btn-block">Save Grid</button>
         </div>
         <div class="col-6">
-          <button type="button" class="btn btn-success btn-block">Go To Preview</button>
+          <button id="btn-preview" type="button" class="btn btn-success btn-block">Go To Preview</button>
         </div>
       </div>
       <ul>
@@ -333,30 +333,38 @@ function catch_image() {
 
 function make_endpoint() {
   // register a JSON endpoint for the root
-  add_rewrite_endpoint("gridlock", EP_ROOT);
+  add_rewrite_endpoint("gridster", EP_ROOT);
 }
 add_action("init", "make_endpoint");
 function add_queryvars( $query_vars ) {  
-    $query_vars[] = 'gridlock';  
+    $query_vars[] = 'gridster';  
     return $query_vars;  
 }  
 add_filter( 'query_vars', 'add_queryvars' );
 
 function json_endpoint() {
   global $wp_query;
-  if (!isset($wp_query->query_vars['gridlock'])) {
+  if (!isset($wp_query->query_vars['gridster'])) {
     return;
   }
-  $response = Array( "response" => "success");
 
   $posts = $_POST['gridlock'];
 
   for ($i = 0 ; $i < count($posts); $i++) {
-    $response[$posts[$i]["col"]] = $posts[$i]["row"];
+    $post = $posts[$i];
+    $id = $post["id"];
+    $row = $post["row"];
+    $index = $post["index"];
+    $span = $post["span"];
+    $val = $row . "." . $index . $span;
+    echo $val;
+    echo $id;
+    update_post_meta($id, "gridlock", $val);
   }
 
   header("Content-Type: application/json");
-  
+
+  $response = Array( "response" => "success");
   echo json_encode($response);
   exit();
 }

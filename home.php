@@ -11,6 +11,7 @@ get_header(); ?>
   <div id="home">
     <div class='row gridlock-row'>
     <?php
+      $finished = false;
       $max_row = get_option("gridlock_rows");
       if ($max_row == 0) {
         $max_row = 999;
