@@ -64,7 +64,7 @@ img {
   border-width: 0px;
   border-bottom-width: 1px; }
 
-.gridlock-row:last-child {
+#home .gridlock-row:last-child {
   display: none; }
 
 @media screen and (min-width: 768px) {

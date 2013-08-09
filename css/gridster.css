@@ -2,7 +2,7 @@
   background: #333333; 
   color: white;
   text-align: center;
-  padding: 20px;
+  padding: 15px 20px;
   box-sizing:border-box;
   -moz-box-sizing:border-box; /* Firefox */
 }
@@ -25,4 +25,19 @@
   margin-top: 20px;
   float: left;
   height: 100%;
+}
+
+.gridster {
+  padding: 20px 10px;
+}
+
+#grid-buttons {
+  padding-left: 10px;
+  padding-right: 15px;
+}
+.gridster-box {
+  padding: 0px 20px;
+}
+.gridster-box .row {
+  margin-top: 10px;
 }

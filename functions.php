@@ -54,6 +54,7 @@ function gridlock_setup() {
   add_option( "gridlock_future", true);
   add_option( "gridlock_query", array("posts_per_page" => 10));
   add_option( "gridlock_grid_query", array("posts_per_page" => 10));
+  add_option( "gridlock_rows", 0);
 }
 add_action( 'after_setup_theme', 'gridlock_setup' );
 add_theme_support( 'post-thumbnails' ); 
@@ -78,11 +79,7 @@ if ( is_admin() ) {
   function gridlock_all_input() {
     $options = get_option('gridlock_all');
     echo ("<input id='gridlock_all' name='gridlock_all' ".checked(1, get_option('gridlock_all'), false)."' type='checkbox' value='1' />");
-    echo ("<br/> Note: defaulted articles always are at the top of the page");
-  }
-  function gridlock_future_input() {
-    $options = get_option('gridlock_all');
-    echo ("<input id='gridlock_all' name='gridlock_future' ".checked(1, get_option('gridlock_future'), false)."' type='checkbox' value='1' />");
+    echo ("<br/><small class='text-muted'> Whether to show posts that have yet to be placed in the grid. <br />Note: defaulted articles always appear above gridded articles</small>");
   }
   function gridlock_query_input() {
     $options = get_option('gridlock_query');
@@ -92,6 +89,17 @@ if ( is_admin() ) {
     }
     $res = substr($res, 0, -2);
     echo "<input id='gridlock_query' name='gridlock_query' size='40' type='text' value='{$res}' />";
+    echo "<br /><small class='text-muted'>If capping by rows, the number of posts queried should exceed the number of rows * 3 </small>";
+  }
+  function gridlock_rows_input() {
+    $options = get_option('gridlock_rows');
+    echo "<input id='gridlock_rows' name='gridlock_rows' size='40' type='text' value='{$options}' />";
+    echo "<br /><small class='text-muted'>(0 for unlimited - return all posts queried) </small>";
+  }
+  function gridlock_future_input() {
+    $options = get_option('gridlock_all');
+    echo ("<input id='gridlock_all' name='gridlock_future' ".checked(1, get_option('gridlock_future'), false)."' type='checkbox' value='1' />");
+    echo ("<br/><small class='text-muted'>Make future and draft posts available for gridding</small>");
   }
   function gridlock_grid_query_input() {
     $options = get_option('gridlock_grid_query');
@@ -101,19 +109,23 @@ if ( is_admin() ) {
     }
     $res = substr($res, 0, -2);
     echo "<input id='gridlock_query' name='gridlock_grid_query' size='40' type='text' value='{$res}' />";
+    echo ("<br/><small class='text-muted'>The query for the grid on the right</small>");
   }
   function register_gridlock() {
     register_setting("gridlock_general", "gridlock_all");
-    register_setting("gridlock_general", "gridlock_future");
     register_setting("gridlock_general", "gridlock_query", "sanitize_query");
+    register_setting("gridlock_general", "gridlock_rows");
+    register_setting("gridlock_general", "gridlock_future");
     register_setting("gridlock_general", "gridlock_grid_query", "sanitize_query");
     add_settings_section('gridlock_main', 'General Gridlock Settings', 'gridlock_settings_text', 'gridlock_general');
-    add_settings_field("gridlock_all", "Show All Posts By Default", "gridlock_all_input", "gridlock_general", "gridlock_main" );
-    add_settings_field("gridlock_future", "Grid Unpublished Posts", "gridlock_future_input", "gridlock_general", "gridlock_main" );
-    add_settings_field("gridlock_query", "The Query for the home screen", "gridlock_query_input", "gridlock_general", "gridlock_main" );
-    add_settings_field("gridlock_grid_query", "The Query for the Grid screen", "gridlock_grid_query_input", "gridlock_general", "gridlock_main" );
+    add_settings_field("gridlock_all", "Show ungridded on home screen", "gridlock_all_input", "gridlock_general", "gridlock_main" );
+    add_settings_field("gridlock_query", "Home screen query", "gridlock_query_input", "gridlock_general", "gridlock_main" );
+    add_settings_field("gridlock_rows", "Max rows on home screen", "gridlock_rows_input", "gridlock_general", "gridlock_main" );
+    add_settings_field("gridlock_future", "Grid unpublishhed posts", "gridlock_future_input", "gridlock_general", "gridlock_main" );
+    add_settings_field("gridlock_grid_query", "Grid screen query", "gridlock_grid_query_input", "gridlock_general", "gridlock_main" );
   }
   // deletes the default posts if the box is unchecked
+  // adds them if checked
   function remove_all_query() {
     if (!get_option("gridlock_all")) {
       $remove = new WP_Query(get_option("gridlock_query"));
@@ -152,20 +164,48 @@ if ( is_admin() ) {
     }
     return $query;
   }
+  function gridlock_future( $array ) {
+    if (get_option("gridlock_future")) {
+      return array_merge($array, array( "post_status" => "draft,future,publish"));
+    } else {
+      return $array;
+    }
+  }
   function gridster() { 
     $query = gridster_query(); 
     $max_row = 0; ?>
     <div class="gridster">
+      <div id="grid-buttons" class="row">
+        <div class="col-6">
+          <button type="button" class="btn btn-primary btn-block">Save Grid</button>
+        </div>
+        <div class="col-6">
+          <button type="button" class="btn btn-success btn-block">Go To Preview</button>
+        </div>
+      </div>
       <ul>
     <?php
-      $gridster_query = new WP_Query(array_merge(get_option("gridlock_query"), array('orderby' => 'meta_value', 'meta_key' => 'gridlock', 'order' => 'ASC' )));
+      $params = gridlock_future(array_merge(get_option("gridlock_query"), array('orderby' => 'date', 'order' => 'DESC', "post_status" => "publish" )));
+      $gridster_query = new WP_Query($params);
       while ( $gridster_query->have_posts() ) : $gridster_query->the_post(); 
         if (get_post_meta( get_the_ID(), "gridlock", true) > 1) { 
             $gridlock =  explode(".", get_post_meta( get_the_ID(), "gridlock", true)); 
             $index = $gridlock[1][0]; 
             $span = $gridlock[1][1]; 
             $row = $gridlock[0]; ?>
-            <li data-row="<?php echo $row ?>" data-col="<?php echo $index ?>" data-sizex="<?php echo $span ?>" data-sizey="1"><? the_title(); ?> </li>
+            <li data-row="<?php echo $row ?>" data-col="<?php echo $index ?>" data-sizex="<?php echo $span ?>" data-sizey="1" data-post_id=<?php the_ID(); ?>>
+              <div class="gridster-box">
+                <div class="row gridster-title">
+                  <?php the_title(); ?> 
+                </div>
+                <div class="row">
+                  <button type="button" class="btn btn-info btn-block toggle-btn">Toggle Size</button>
+                </div>
+                <div class="row">
+                  <button type="button" class="btn btn-danger btn-block remove-btn">Remove</button>
+                </div>
+              </div>
+            </li>
         <?php } 
       endwhile;
       ?>
@@ -180,8 +220,16 @@ if ( is_admin() ) {
 
   add_action('admin_menu', 'gridlock_menu');
 
-  function unassigned_posts() {
-      
+  function ungridded_posts() {
+    $params = gridlock_future(array_merge(get_option("gridlock_grid_query"), array('orderby' => 'date', 'order' => 'DESC', "post_status" => "publish"  )));
+    $unassigned = new WP_Query($params);
+    echo "<ul id='ungridded' class='list-unstyled'>";
+    while ( $unassigned->have_posts() ) : $unassigned->the_post(); 
+      if (get_post_meta(get_the_ID(), "gridlock", true) < 1) {
+        echo "<li><a href='#' data-post_id=" . get_the_ID() . " class='text-primary'>+" . get_the_title() . "</a></li>";
+      }
+    endwhile;
+    echo "</ul>";
   }
 
   ?>
@@ -199,8 +247,9 @@ if ( is_admin() ) {
                 <?php do_settings_sections("gridlock_general"); ?>
                 <?php submit_button(); ?>
               </form>
-            <h3>Unassigned Posts</h3>
-              <?php unassigned_posts(); ?> 
+            <h3>Ungridded Posts</h3>
+              <p><small class="text-muted">Click to add to grid</small></p>
+              <?php ungridded_posts(); ?> 
             </div>
           </div>
         </div>
@@ -212,8 +261,8 @@ if ( is_admin() ) {
       </div>
     </div>
   <?php }
-
 }
+
 function gridlock_widgets_init() {
 	register_sidebar( array(
 		'name' => __( 'Main Sidebar', 'gridlock' ),
@@ -282,4 +331,45 @@ function catch_image() {
   return $first_img;
 }
 
+function make_endpoint() {
+  // register a JSON endpoint for the root
+  add_rewrite_endpoint("gridlock", EP_ROOT);
+}
+add_action("init", "make_endpoint");
+function add_queryvars( $query_vars ) {  
+    $query_vars[] = 'gridlock';  
+    return $query_vars;  
+}  
+add_filter( 'query_vars', 'add_queryvars' );
 
+function json_endpoint() {
+  global $wp_query;
+  if (!isset($wp_query->query_vars['gridlock'])) {
+    return;
+  }
+  $response = Array( "response" => "success");
+
+  $posts = $_POST['gridlock'];
+
+  for ($i = 0 ; $i < count($posts); $i++) {
+    $response[$posts[$i]["col"]] = $posts[$i]["row"];
+  }
+
+  header("Content-Type: application/json");
+  
+  echo json_encode($response);
+  exit();
+}
+add_action( 'template_redirect', 'json_endpoint' );
+
+function endpoints_activate() {
+  make_endpoint();
+  flush_rewrite_rules();
+}
+register_activation_hook( __FILE__, 'endpoints_activate' );
+
+function endpoints_deactivate() {
+  // flush rules on deactivate as well so they're not left hanging around uselessly
+  flush_rewrite_rules();
+}
+register_deactivation_hook( __FILE__, 'endpoints_deactivate' );
