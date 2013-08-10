@@ -357,8 +357,6 @@ function json_endpoint() {
     $index = $post["index"];
     $span = $post["span"];
     $val = $row . "." . $index . $span;
-    echo $val;
-    echo $id;
     update_post_meta($id, "gridlock", $val);
   }
 
