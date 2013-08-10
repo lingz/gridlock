@@ -19,7 +19,7 @@
       }
       ?>
     <?php if ($image_url) { ?>
-      <?php $span =  explode(".", get_post_meta( get_the_ID(), "gridlock", true)); ?>
+      <?php $span = explode(".", get_post_meta( get_the_ID(), "_gridlock", true)); ?>
       <?php $span = $span[1][1] ?>
       <?php if ($span == 1) { ?>
         <a href="<?php the_permalink(); ?>">

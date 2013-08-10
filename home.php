@@ -17,11 +17,11 @@ get_header(); ?>
         $max_row = 999;
       }
       $row_count = 0;
-      $meta_query = new WP_Query(array_merge(get_option("gridlock_query"), array('orderby' => 'meta_value', 'meta_key' => 'gridlock', 'order' => 'ASC', "post_status" => "publish" )));
+      $meta_query = new WP_Query(array_merge(get_option("gridlock_query"), array('orderby' => 'meta_value', 'meta_key' => '_gridlock', 'order' => 'ASC', "post_status" => "publish" )));
       while ( $meta_query->have_posts() ) : $meta_query->the_post(); 
             // get the grid positioning
             // Example input is 32.12, meaning row 32, index starting at 1, spanning 2
-            $gridlock =  explode(".", get_post_meta( get_the_ID(), "gridlock", true)); 
+            $gridlock =  explode(".", get_post_meta( get_the_ID(), "_gridlock", true)); 
             $index = $gridlock[1][0]; 
             $span = $gridlock[1][1];
           ?>

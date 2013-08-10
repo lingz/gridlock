@@ -57,9 +57,12 @@ $(function(){ //DOM Ready
     });
 
     $(document).on("click", "#btn-save", function(e) {
-      var data = gridster.serialize();
+      var data_up = gridster.serialize();
       var root_url = $(".gridster").attr("data-root");
-      $.post(root_url + "/?gridster", {gridlock: data});
+      var data_down = $("#ungridded li a").map(function(){
+        return parseInt($(this).attr("data-post_id"), 10);
+      }).toArray();
+      $.post(root_url + "/?gridster", {gridlock: data_up, gridlock_remove: data_down});
     });
 
     $(document).on("click", "#btn-preview", function(e) {

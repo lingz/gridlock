@@ -128,18 +128,18 @@ if ( is_admin() ) {
   // adds them if checked
   function remove_all_query() {
     if (!get_option("gridlock_all")) {
-      $remove = new WP_Query(array( "posts_per_page" => 500));
+      $remove = new WP_Query(array( "posts_per_page" => 200));
       while ( $remove->have_posts() ) : $remove->the_post(); 
-        if (get_post_meta(get_the_ID(), "gridlock", true) < 1) {
-          delete_post_meta(get_the_ID(), "gridlock");
+        if (get_post_meta(get_the_ID(), "_gridlock", true) < 1) {
+          delete_post_meta(get_the_ID(), "_gridlock");
         }
       endwhile;
     } else {
       // if gridlock all is set, go through all recent posts and make sure 
       $backorder = new WP_Query(get_option("gridlock_query"));
       while ($backorder->have_posts() ) : $backorder->the_post();
-        if (!get_post_meta(get_the_ID(), "gridlock", true)) {
-          add_post_meta(get_the_ID(), "gridlock", "0.13", true);
+        if (!get_post_meta(get_the_ID(), "_gridlock", true)) {
+          add_post_meta(get_the_ID(), "_gridlock", "0.13", true);
         }
       endwhile;
     }
@@ -149,10 +149,10 @@ if ( is_admin() ) {
 
   function gridster_head() { ?>
     <script src="<?php echo get_template_directory_uri(); ?>/javascripts/jquery-2.0.3.min.js" type="text/javascript"></script>
-    <link rel="stylesheet" type="text/css" href="<?php echo get_stylesheet_directory_uri(); ?>/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="<?php echo get_stylesheet_directory_uri(); ?>/css/bootstrap.min.css" />
     <script src="<?php echo get_template_directory_uri(); ?>/javascripts/bootstrap.min.js" type="text/javascript"></script>
-    <link rel="stylesheet" type="text/css" href="<?php echo get_stylesheet_directory_uri(); ?>/jquery.gridster.min.css" />
-    <link rel="stylesheet" type="text/css" href="<?php echo get_stylesheet_directory_uri(); ?>/gridster.css" />
+    <link rel="stylesheet" type="text/css" href="<?php echo get_stylesheet_directory_uri(); ?>/css/jquery.gridster.min.css" />
+    <link rel="stylesheet" type="text/css" href="<?php echo get_stylesheet_directory_uri(); ?>/css/gridster.css" />
     <script src="<?php echo get_template_directory_uri(); ?>/javascripts/jquery.gridster.min.js" type="text/javascript"></script>
     <script src="<?php echo get_template_directory_uri(); ?>/javascripts/gridster.js" type="text/javascript"></script>
   <?php }
@@ -171,48 +171,50 @@ if ( is_admin() ) {
       return $array;
     }
   }
-  function gridster() { 
-    $query = gridster_query(); 
-    $max_row = 0; ?>
-    <div data-root='<?php echo site_url(); ?>' class="gridster">
-      <div id="grid-buttons" class="row">
-        <div class="col-6">
-          <button id="btn-save" type="button" class="btn btn-primary btn-block">Save Grid</button>
+  if (!function_exists ("gridster")) {
+    function gridster() { 
+      $query = gridster_query(); 
+      $max_row = 0; ?>
+      <div data-root='<?php echo site_url(); ?>' class="gridster">
+        <div id="grid-buttons" class="row">
+          <div class="col-6">
+            <button id="btn-save" type="button" class="btn btn-primary btn-block">Save Grid</button>
+          </div>
+          <div class="col-6">
+            <button id="btn-preview" type="button" class="btn btn-success btn-block">Go To Preview</button>
+          </div>
         </div>
-        <div class="col-6">
-          <button id="btn-preview" type="button" class="btn btn-success btn-block">Go To Preview</button>
-        </div>
+        <ul>
+      <?php
+        $params = gridlock_future(array_merge(get_option("gridlock_query"), array('orderby' => 'date', 'order' => 'DESC', "post_status" => "publish" )));
+        $gridster_query = new WP_Query($params);
+        while ( $gridster_query->have_posts() ) : $gridster_query->the_post(); 
+          if (get_post_meta( get_the_ID(), "_gridlock", true) > 1) { 
+              $gridlock =  explode(".", get_post_meta( get_the_ID(), "_gridlock", true)); 
+              $index = $gridlock[1][0]; 
+              $span = $gridlock[1][1]; 
+              $row = $gridlock[0]; ?>
+              <li data-row="<?php echo $row ?>" data-col="<?php echo $index ?>" data-sizex="<?php echo $span ?>" data-sizey="1" data-post_id=<?php the_ID(); ?>>
+                <div class="gridster-box">
+                  <div class="row gridster-title">
+                    <?php the_title(); ?> 
+                  </div>
+                  <div class="row">
+                    <button type="button" class="btn btn-info btn-block toggle-btn">Toggle Size</button>
+                  </div>
+                  <div class="row">
+                    <button type="button" class="btn btn-danger btn-block remove-btn">Remove</button>
+                  </div>
+                </div>
+              </li>
+          <?php } 
+        endwhile;
+        ?>
+        </ul>
       </div>
-      <ul>
-    <?php
-      $params = gridlock_future(array_merge(get_option("gridlock_query"), array('orderby' => 'date', 'order' => 'DESC', "post_status" => "publish" )));
-      $gridster_query = new WP_Query($params);
-      while ( $gridster_query->have_posts() ) : $gridster_query->the_post(); 
-        if (get_post_meta( get_the_ID(), "gridlock", true) > 1) { 
-            $gridlock =  explode(".", get_post_meta( get_the_ID(), "gridlock", true)); 
-            $index = $gridlock[1][0]; 
-            $span = $gridlock[1][1]; 
-            $row = $gridlock[0]; ?>
-            <li data-row="<?php echo $row ?>" data-col="<?php echo $index ?>" data-sizex="<?php echo $span ?>" data-sizey="1" data-post_id=<?php the_ID(); ?>>
-              <div class="gridster-box">
-                <div class="row gridster-title">
-                  <?php the_title(); ?> 
-                </div>
-                <div class="row">
-                  <button type="button" class="btn btn-info btn-block toggle-btn">Toggle Size</button>
-                </div>
-                <div class="row">
-                  <button type="button" class="btn btn-danger btn-block remove-btn">Remove</button>
-                </div>
-              </div>
-            </li>
-        <?php } 
-      endwhile;
-      ?>
-      </ul>
-    </div>
 
-  <?php } 
+<?php } 
+  } 
 
   function gridlock_menu() {
     add_theme_page("Gridlock", "Gridlock", "edit_others_posts", "gridlock", "gridlock_page");
@@ -220,16 +222,18 @@ if ( is_admin() ) {
 
   add_action('admin_menu', 'gridlock_menu');
 
-  function ungridded_posts() {
-    $params = gridlock_future(array_merge(get_option("gridlock_grid_query"), array('orderby' => 'date', 'order' => 'DESC', "post_status" => "publish"  )));
-    $unassigned = new WP_Query($params);
-    echo "<ul id='ungridded' class='list-unstyled'>";
-    while ( $unassigned->have_posts() ) : $unassigned->the_post(); 
-      if (get_post_meta(get_the_ID(), "gridlock", true) < 1) {
-        echo "<li><a href='#' data-post_id=" . get_the_ID() . " class='text-primary'>+" . get_the_title() . "</a></li>";
-      }
-    endwhile;
-    echo "</ul>";
+  if (!function_exists("ungridded_posts")) {
+    function ungridded_posts() {
+      $params = gridlock_future(array_merge(get_option("gridlock_grid_query"), array('orderby' => 'date', 'order' => 'DESC', "post_status" => "publish"  )));
+      $unassigned = new WP_Query($params);
+      echo "<ul id='ungridded' class='list-unstyled'>";
+      while ( $unassigned->have_posts() ) : $unassigned->the_post(); 
+        if (get_post_meta(get_the_ID(), "_gridlock", true) < 1) {
+          echo "<li><a href='#' data-post_id=" . get_the_ID() . " class='text-primary'>+" . get_the_title() . "</a></li>";
+        }
+      endwhile;
+      echo "</ul>";
+    }
   }
 
   ?>
@@ -276,10 +280,6 @@ function gridlock_widgets_init() {
 }
 add_action( 'widgets_init', 'gridlock_widgets_init' );
 
-function gridlock_stylesheet_directory_uri( $args ) {
-  return $args."/css";
-}
-add_filter( 'stylesheet_directory_uri', 'gridlock_stylesheet_directory_uri', 10, 2 );
 
 function small_author($args) {
   $pattern = "/>([^<]*)</";
@@ -347,6 +347,7 @@ function json_endpoint() {
   if (!isset($wp_query->query_vars['gridster'])) {
     return;
   }
+  $remove = new WP_Query(array( "posts_per_page" => 200));
 
   $posts = $_POST['gridlock'];
 
@@ -357,7 +358,14 @@ function json_endpoint() {
     $index = $post["index"];
     $span = $post["span"];
     $val = $row . "." . $index . $span;
-    update_post_meta($id, "gridlock", $val);
+    update_post_meta($id, "_gridlock", $val);
+  }
+
+  $remove = $_POST['gridlock_remove'];
+
+  for ($i = 0 ; $i < count($remove); $i++) {
+    $id = $remove[$i];
+    delete_post_meta($id, "_gridlock");
   }
 
   header("Content-Type: application/json");
