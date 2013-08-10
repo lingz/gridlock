@@ -18,7 +18,7 @@
         $image_url = catch_image();
       }
       ?>
-    <? if ($image_url) { ?>
+    <?php if ($image_url) { ?>
       <?php $span =  explode(".", get_post_meta( get_the_ID(), "gridlock", true)); ?>
       <?php $span = $span[1][1] ?>
       <?php if ($span == 1) { ?>

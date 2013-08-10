@@ -18,7 +18,7 @@
         $image_url = catch_image();
       }
       ?>
-    <? if ($image_url) { ?>
+    <?php if ($image_url) { ?>
       <div class="article-image col-6">
         <a href="<?php the_permalink(); ?>">
           <div class="image" style="background-image: url(<?php echo $image_url ?>)"></div>
