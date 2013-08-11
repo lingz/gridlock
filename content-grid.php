@@ -10,17 +10,22 @@
 <div id="id-<?php the_ID(); ?>" <?php post_class(); ?> >
   <div class="row">
     <?php 
+      $span = explode(".", get_post_meta( get_the_ID(), "_gridlock", true)); 
+      $span = $span[1][1] ;
+
       $image_url = false;
-      if (has_post_thumbnail()) {
-        $image_url =  wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), array(300, 300), false, ''); 
-        $image_url = $image_url[0];
+      if ($span == 1 || $span == 2) {
+        if (has_post_thumbnail()) {
+          $image_url =  wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), array(300, 300), false, ''); 
+          $image_url = $image_url[0];
+        } else {
+          $image_url = catch_image();
+        }
       } else {
         $image_url = catch_image();
       }
       ?>
     <?php if ($image_url) { ?>
-      <?php $span = explode(".", get_post_meta( get_the_ID(), "_gridlock", true)); ?>
-      <?php $span = $span[1][1] ?>
       <?php if ($span == 1) { ?>
         <a href="<?php the_permalink(); ?>">
           <div class="article-image col-6 col-sm-12" >
