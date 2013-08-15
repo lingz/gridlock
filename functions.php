@@ -283,7 +283,7 @@ add_action( 'widgets_init', 'gridlock_widgets_init' );
 
 function small_author($args) {
   $pattern = "/>([^<]*)</";
-  $replacement = "><em class='text-muted'>$1</em><";
+  $replacement = "><small class='text-muted'>$1</small><";
   echo preg_replace($pattern, $replacement, $args);
 }
 add_filter( 'the_author_posts_link', 'small_author', 10, 2 );
